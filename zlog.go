@@ -1,14 +1,17 @@
 package zlog
 
 import (
-	"os"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func New(level zapcore.Level) *zap.SugaredLogger {
-	writer := zapcore.AddSync(os.Stdout)
+func New(ops ...Option) *zap.SugaredLogger {
+	options := newOptions()
+	for _, op := range ops {
+		op(options)
+	}
+
+	writer := zapcore.AddSync(options.output)
 
 	// 格式相关的配置
 	encoderConfig := zap.NewProductionEncoderConfig()
@@ -16,6 +19,6 @@ func New(level zapcore.Level) *zap.SugaredLogger {
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	core := zapcore.NewCore(encoder, writer, level)
-	return zap.New(core, zap.AddCaller()).Sugar()
+	core := zapcore.NewCore(encoder, writer, zapcore.Level(options.level))
+	return zap.New(core, zap.WithCaller(options.caller)).Sugar()
 }
