@@ -16,6 +16,7 @@ type options struct {
 func newOptions() *options {
 	return &options{
 		level: InfoLevel,
+		caller: true,
 		output: os.Stdout,
 	}
 }
@@ -26,9 +27,9 @@ func AddLevel(l Level) Option {
 	}
 }
 
-func AddCaller() Option {
+func AddCaller(enabled bool) Option {
 	return func(o *options) {
-		o.caller = true
+		o.caller = enabled
 	}
 }
 
